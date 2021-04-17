@@ -26,6 +26,7 @@ export default function Projects(): JSX.Element {
   );
   const [workspaceDir, setWorkspaceDir] = useState<string[]>([]);
   const { state, dispatch } = useContext(StepperContext);
+  const workspaceService = new WorkspaceService(setWorkspaceDir);
 
   useEffect(() => {
     if (state.creatingProject) {
@@ -38,8 +39,8 @@ export default function Projects(): JSX.Element {
     }
 
     global.ipcRenderer.on('ide:projects', ideProjectsHandler);
-    const workspaceService = new WorkspaceService(setWorkspaceDir);
-    workspaceService.getProjectsInWorkspace(state.projectData.path);
+    global.ipcRenderer.on('wsCreation:', getUpdatedWorkspaces);
+    getUpdatedWorkspaces();
     return () => {
       global.ipcRenderer.removeAllListeners('ide:projects');
       workspaceService.closeListener();
@@ -49,10 +50,14 @@ export default function Projects(): JSX.Element {
   useEffect(() => {
     if (state.projectData.path) {
       global.ipcRenderer.send('ide:projects', state.projectData.path);
-      const workspaceService = new WorkspaceService(setWorkspaceDir);
-      workspaceService.getProjectsInWorkspace(state.projectData.path);
+      getUpdatedWorkspaces();
     }
   }, [state]);
+
+  const getUpdatedWorkspaces = () => {
+    // const workspaceService = new WorkspaceService(setWorkspaceDir);
+    workspaceService.getProjectsInWorkspace(state.projectData.path);
+  };
 
   const ideProjectsHandler = (
     _: unknown,

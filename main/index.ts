@@ -13,6 +13,7 @@ import DevonInstancesService from './services/devon-instances/devon-instances.se
 import { DevonfwConfig, IdeDistribution } from './models/devonfw-dists.model';
 import { ProfileSetupService } from './services/profile-setup/profile-setup.service';
 import { readdirPromise } from './modules/shared/utils/promised';
+import { createDirectory } from './modules/shared/utils/create-directory';
 import { InstallListener } from './modules/projects/classes/listeners/install-listener';
 import { ProjectCreationListener } from './modules/projects/classes/listeners/project-creation-listener';
 import {
@@ -154,6 +155,17 @@ async function getDirsFromPath(path: string) {
   }
 }
 
+async function createWorkspace(path: string) {
+  try {
+    const created = await createDirectory(path);
+    mainWindow.webContents.send('wsCreation:', created);
+    return created;
+  } catch (e) {
+    mainWindow.webContents.send('wsCreation:', '');
+    return '';
+  }
+}
+
 /* Enable services */
 
 new OpenIdeListener().listen();
@@ -209,3 +221,4 @@ ipcMain.on('set:profile', (e, profile: UserProfile) =>
 ipcMain.on('find:profileStatus', () => checkProfileStatus(mainWindow));
 ipcMain.handle('find:profile', () => new ProfileSetupService().getProfile());
 ipcMain.handle('get:dirsFromPath', (e, path) => getDirsFromPath(path));
+ipcMain.handle('create:workspace', (e, path) => createWorkspace(path));

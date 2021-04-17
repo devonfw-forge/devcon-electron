@@ -5,20 +5,25 @@ import Typography from '@material-ui/core/Typography';
 import useNewProjectStyles from './new-project.styles';
 import Box from '@material-ui/core/Box';
 
-export default function NewProject(): JSX.Element {
+interface NewProjectProps {
+  buttonText: string;
+  buttonAction?: () => void;
+}
+
+export default function NewProject(props: NewProjectProps): JSX.Element {
   const classes = useNewProjectStyles();
 
   return (
-    <Card>
+    <Card onClick={props.buttonAction}>
       <CardMedia
         className={classes.cardMedia}
         image="/static/assets/add_new_project.png"
-        title="Add new Project"
+        title={props.buttonText}
       />
       <CardContent className={classes.cardContent}>
         <Typography component="span">
           <Box fontWeight="fontWeightBold" fontSize={14}>
-            Add New Project
+            {props.buttonText}
           </Box>
         </Typography>
       </CardContent>
